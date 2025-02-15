@@ -1,0 +1,143 @@
+import express from 'express';
+import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import FormData from 'form-data';
+import { db } from '../firebaseAdmin.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const router = express.Router();
+const API_KEY = process.env.AFINDA_API_KEY;
+const RESUMES_DIR = path.resolve('resumes');
+
+// Helper function to find resume by PRN
+const findResumeByPRN = (prn) => {
+  try {
+    const files = fs.readdirSync(RESUMES_DIR);
+    const resumeFile = files.find((file) => file.startsWith(`${prn}-`));
+    if (!resumeFile) {
+      throw new Error('Resume file not found');
+    }
+    return path.join(RESUMES_DIR, resumeFile);
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Route to extract resume details
+router.post('/extract-skills', async (req, res) => {
+  const { prn } = req.body;
+
+  if (!prn) {
+    return res.status(400).json({ error: 'PRN is required' });
+  }
+
+  let resumePath;
+  try {
+    resumePath = findResumeByPRN(prn);
+  } catch (error) {
+    return res.status(404).json({ error: error.message });
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('file', fs.createReadStream(resumePath));
+    formData.append('indices', 'skills, projects, name, sections, experience');
+
+    const response = await axios.post(
+      'https://api.affinda.com/v2/resumes',
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders(),
+          Authorization: `Bearer ${API_KEY}`,
+        },
+      }
+    );
+
+    const parsedData = response.data.data;
+    if (!parsedData) {
+      return res.status(500).json({ error: 'Failed to parse resume' });
+    }
+
+    // Extract Name
+    const name = parsedData.name?.raw || 'Unknown';
+
+    // Extract Skills
+    const skills = parsedData.skills?.map(skill => skill.name) || [];
+
+    // Extract Projects
+    let projects = [];
+    if (parsedData.projects?.text) {
+      projects = parsedData.projects.text.split("\n").filter(proj => proj.trim() !== "" && proj !== "PROJECTS");
+    } else {
+      const projSection = parsedData.sections?.find(sec => sec.sectionType.toLowerCase().includes('projects'));
+      if (projSection) {
+        projects = projSection.text.split("\n").filter(proj => proj.trim() !== "" && proj !== "PROJECTS");
+      }
+    }
+
+    // Extract Work Experience
+    let workExperience = [];
+    if (parsedData.experience && parsedData.experience.length > 0) {
+      workExperience = parsedData.experience.map(exp => ({
+        role: exp.jobTitle || 'Unknown Role',
+        company: exp.organization || 'Unknown Company',
+        duration: exp.dates || 'Unknown Duration'
+      }));
+    } else {
+      const workSection = parsedData.sections?.find(sec => sec.sectionType.toLowerCase().includes('experience'));
+      if (workSection) {
+        workExperience = workSection.text.split("\n").filter(exp => exp.trim() !== "");
+      }
+    }
+
+    // Check if student exists in Firestore
+    const studentSnapshot = await db.collection('students').where('prn', '==', prn).get();
+    if (studentSnapshot.empty) {
+      return res.status(404).json({ error: 'Student record not found' });
+    }
+
+    const studentDocId = studentSnapshot.docs[0].id;
+    const studentDoc = studentSnapshot.docs[0].data();
+
+    // Ensure existing data is handled correctly
+    const storedSkills = Array.isArray(studentDoc.skills) ? studentDoc.skills : [];
+    const storedProjects = Array.isArray(studentDoc.projects) ? studentDoc.projects : [];
+    const storedWorkExperience = Array.isArray(studentDoc.workExperience) ? studentDoc.workExperience : [];
+
+    // If already stored, return existing data
+    if (storedSkills.length > 0 && storedProjects.length > 0 && storedWorkExperience.length > 0) {
+      return res.status(200).json({
+        name: studentDoc.name,
+        skills: storedSkills,
+        projects: storedProjects,
+        workExperience: storedWorkExperience
+      });
+    }
+
+    // Save to Firestore
+    await db.collection('students').doc(studentDocId).update({
+      name: name,
+      skills: storedSkills.length > 0 ? storedSkills : skills,
+      projects: storedProjects.length > 0 ? storedProjects : projects,
+      workExperience: storedWorkExperience.length > 0 ? storedWorkExperience : workExperience
+    });
+
+    // Send extracted data
+    return res.status(200).json({
+      name,
+      skills,
+      projects,
+      workExperience
+    });
+
+  } catch (error) {
+    console.error('Error extracting resume details:', error.message);
+    return res.status(500).json({ error: 'Failed to extract resume details' });
+  }
+});
+
+export const SkillExtractionRoute = router;

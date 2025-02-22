@@ -32,15 +32,27 @@ function JobSearch() {
       setError('No PRN found in localStorage.');
       return;
     }
-
+  
     try {
       const studentRef = collection(db, 'students');
       const q = query(studentRef, where('prn', '==', prn));
       const querySnapshot = await getDocs(q);
-
+  
       if (!querySnapshot.empty) {
         const studentData = querySnapshot.docs[0].data();
-        const userSkills = studentData.skills ? studentData.skills.split(',').map(skill => skill.trim()) : [];
+        console.log('Student Data:', studentData); // Debugging: Log studentData
+  
+        let userSkills = [];
+        if (typeof studentData.skills === 'string') {
+          // If skills is a string, split it into an array
+          userSkills = studentData.skills.split(',').map(skill => skill.trim());
+        } else if (Array.isArray(studentData.skills)) {
+          // If skills is already an array, use it directly
+          userSkills = studentData.skills;
+        } else {
+          console.warn('Skills is not a string or array:', studentData.skills);
+        }
+  
         const processedSkills = preprocessSkills(userSkills); // Preprocess skills
         setSkills(processedSkills); // Save the preprocessed skills
       } else {

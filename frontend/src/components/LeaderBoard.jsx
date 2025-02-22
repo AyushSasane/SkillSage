@@ -1,5 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import {
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  CircularProgress,
+  Typography,
+  Alert,
+  Box,
+  Button,
+} from '@mui/material';
 
 const LeaderBoard = () => {
   const [leaderBoardData, setLeaderBoardData] = useState([]);
@@ -24,51 +39,56 @@ const LeaderBoard = () => {
 
   if (loading) {
     return (
-      <div className="text-center">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <p>Loading leaderboard...</p>
-      </div>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+        <Typography variant="body1" style={{ marginLeft: '16px' }}>
+          Loading leaderboard...
+        </Typography>
+      </Box>
     );
   }
 
   if (error) {
-    return <div className="text-danger text-center">{error}</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
   }
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-left mb-4">Leaderboard</h2>
-      <div className="table-responsive">
-        <table className="table table-striped table-bordered">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Total Score</th>
-            </tr>
-          </thead>
-          <tbody>
+    <Container maxWidth="md" style={{ marginTop: '40px' }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography  style={{fontFamily:'lexend, sans-serif', fontSize:'32px'}} variant="h5">Leaderboard</Typography>
+      </Box>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Rank</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>Total Score</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {leaderBoardData.map((student, index) => (
-              <tr
+              <TableRow
                 key={student.email}
                 style={{
-                  backgroundColor: index % 2 === 0 ? '#f0f8ff' : 'white',
-                  padding: '12px 15px',
+                  backgroundColor: index % 2 === 0 ? '#f9f9f9' : 'white',
                 }}
               >
-                <td>{student.rank}</td>
-                <td>{student.name}</td>
-                <td>{student.email}</td>
-                <td>{student.totalScore}</td>
-              </tr>
+                <TableCell>{student.rank}</TableCell>
+                <TableCell>{student.name}</TableCell>
+                <TableCell>{student.email}</TableCell>
+                <TableCell>{student.totalScore}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Container>
   );
 };
 

@@ -34,14 +34,35 @@ router.post('/extract-skills', async (req, res) => {
     return res.status(400).json({ error: 'PRN is required' });
   }
 
-  let resumePath;
   try {
-    resumePath = findResumeByPRN(prn);
-  } catch (error) {
-    return res.status(404).json({ error: error.message });
-  }
+    // Step 1: Check Firestore for existing data
+    const studentSnapshot = await db.collection('students').where('prn', '==', prn).get();
+    
+    if (studentSnapshot.empty) {
+      return res.status(404).json({ error: 'Student record not found' });
+    }
 
-  try {
+    const studentDoc = studentSnapshot.docs[0].data();
+    const studentDocId = studentSnapshot.docs[0].id;
+
+    if (studentDoc.skills?.length && studentDoc.projects?.length && studentDoc.workExperience?.length) {
+      // If data already exists, return it
+      return res.status(200).json({
+        name: studentDoc.name,
+        skills: studentDoc.skills,
+        projects: studentDoc.projects,
+        workExperience: studentDoc.workExperience,
+      });
+    }
+
+    // Step 2: If no data, find and parse the resume
+    let resumePath;
+    try {
+      resumePath = findResumeByPRN(prn);
+    } catch (error) {
+      return res.status(404).json({ error: error.message });
+    }
+
     const formData = new FormData();
     formData.append('file', fs.createReadStream(resumePath));
     formData.append('indices', 'skills, projects, name, sections, experience');
@@ -62,13 +83,10 @@ router.post('/extract-skills', async (req, res) => {
       return res.status(500).json({ error: 'Failed to parse resume' });
     }
 
-    // Extract Name
-    const name = parsedData.name?.raw || 'Unknown';
-
-    // Extract Skills
+    // Extract relevant data
+    const name = parsedData.name?.raw || studentDoc.name || 'Unknown';
     const skills = parsedData.skills?.map(skill => skill.name) || [];
-
-    // Extract Projects
+    
     let projects = [];
     if (parsedData.projects?.text) {
       projects = parsedData.projects.text.split("\n").filter(proj => proj.trim() !== "" && proj !== "PROJECTS");
@@ -79,7 +97,6 @@ router.post('/extract-skills', async (req, res) => {
       }
     }
 
-    // Extract Work Experience
     let workExperience = [];
     if (parsedData.experience && parsedData.experience.length > 0) {
       workExperience = parsedData.experience.map(exp => ({
@@ -94,39 +111,14 @@ router.post('/extract-skills', async (req, res) => {
       }
     }
 
-    // Check if student exists in Firestore
-    const studentSnapshot = await db.collection('students').where('prn', '==', prn).get();
-    if (studentSnapshot.empty) {
-      return res.status(404).json({ error: 'Student record not found' });
-    }
-
-    const studentDocId = studentSnapshot.docs[0].id;
-    const studentDoc = studentSnapshot.docs[0].data();
-
-    // Ensure existing data is handled correctly
-    const storedSkills = Array.isArray(studentDoc.skills) ? studentDoc.skills : [];
-    const storedProjects = Array.isArray(studentDoc.projects) ? studentDoc.projects : [];
-    const storedWorkExperience = Array.isArray(studentDoc.workExperience) ? studentDoc.workExperience : [];
-
-    // If already stored, return existing data
-    if (storedSkills.length > 0 && storedProjects.length > 0 && storedWorkExperience.length > 0) {
-      return res.status(200).json({
-        name: studentDoc.name,
-        skills: storedSkills,
-        projects: storedProjects,
-        workExperience: storedWorkExperience
-      });
-    }
-
-    // Save to Firestore
+    // Step 3: Store parsed data in Firestore
     await db.collection('students').doc(studentDocId).update({
-      name: name,
-      skills: storedSkills.length > 0 ? storedSkills : skills,
-      projects: storedProjects.length > 0 ? storedProjects : projects,
-      workExperience: storedWorkExperience.length > 0 ? storedWorkExperience : workExperience
+      name,
+      skills,
+      projects,
+      workExperience
     });
 
-    // Send extracted data
     return res.status(200).json({
       name,
       skills,

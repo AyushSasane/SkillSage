@@ -1,0 +1,57 @@
+/* LOGO CONTAINER */
+.logo-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  /* OWL IMAGE */
+  .logo-image {
+    width: 50px; /* Adjust size */
+    height: auto;
+    margin-right: 10px;
+  }
+  
+  /* SKILLSAGE TEXT */
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .logo-title {
+    font-size: 25px;
+    font-weight: bold;
+    color: #0d1b2a; /* Dark blue */
+    font-family: "Rosario", serif;
+  }
+  
+  .logo-subtitle {
+    font-size: 15px;
+    color: #b89f6a; /* Gold */
+    font-family: "Lexend", serif;
+
+  }
+  
+  /* PROFILE IMAGE */
+  .profile-container {
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .profile-container:hover {
+    background-color: #f8f9fa;
+  }
+  
+  .profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    border: 2px solid #ddd;
+  }
+  
+  /* GREETING TEXT */
+  .user-greeting {
+    font-weight: bold;
+    font-size: 16px;
+  }

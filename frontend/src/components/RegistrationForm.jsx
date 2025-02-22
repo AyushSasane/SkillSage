@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
 import { FaUser, FaUniversity, FaFileUpload } from 'react-icons/fa'; // Importing icons
+import logo from '../assets/SKILLSAGE LOGO FINAL.png';
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
@@ -78,14 +79,17 @@ const RegistrationForm = () => {
 
   return (
     <div className="container mt-5 d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-      <div className="border p-4 rounded shadow" style={{ maxWidth: '500px', width: '100%' }}>
-        <h2 className="text-center">Complete Your Registration</h2>
-        {error && <p className="text-danger">{error}</p>}
-        {success && <p className="text-success">{success}</p>}
+      <div className="border p-4 rounded shadow" style={{ maxWidth: '500px', width: '100%', backgroundColor: '#f8f9fa' }}>
+        <div className="text-center mb-4">
+          <img src={logo} alt="SkillSage Logo" style={{ width: '150px', marginBottom: '20px' }} />
+          <h2 className="text-center" style={{ color: '#343a40', fontWeight: '600', fontSize: '1.75rem' }}>Complete Your Registration</h2>
+        </div>
+        {error && <p className="text-danger text-center">{error}</p>}
+        {success && <p className="text-success text-center">{success}</p>}
         <form onSubmit={handleSubmit} className="mx-auto">
           <div className="mb-3">
-            <label htmlFor="prn" className="form-label">
-              <FaUser /> PRN:
+            <label htmlFor="prn" className="form-label d-flex align-items-center" style={{ color: '#495057', fontWeight: '500' }}>
+              <FaUser className="me-2" /> PRN:
             </label>
             <input
               type="text"
@@ -95,11 +99,12 @@ const RegistrationForm = () => {
               value={formData.prn}
               onChange={handleChange}
               required
+              style={{ borderRadius: '8px', padding: '10px' }}
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="name" className="form-label">
-              <FaUser /> Name:
+            <label htmlFor="name" className="form-label d-flex align-items-center" style={{ color: '#495057', fontWeight: '500' }}>
+              <FaUser className="me-2" /> Name:
             </label>
             <input
               type="text"
@@ -109,11 +114,12 @@ const RegistrationForm = () => {
               value={formData.name}
               onChange={handleChange}
               required
+              style={{ borderRadius: '8px', padding: '10px' }}
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="college" className="form-label">
-              <FaUniversity /> College:
+            <label htmlFor="college" className="form-label d-flex align-items-center" style={{ color: '#495057', fontWeight: '500' }}>
+              <FaUniversity className="me-2" /> College:
             </label>
             <select
               name="college"
@@ -122,6 +128,7 @@ const RegistrationForm = () => {
               value={formData.college}
               onChange={handleChange}
               required
+              style={{ borderRadius: '8px', padding: '10px' }}
             >
               <option value="" disabled>Select College</option>
               <option value="Vishwakarma Institute of Technology (Bibwewadi)">Vishwakarma Institute of Technology (Bibwewadi)</option>
@@ -129,8 +136,8 @@ const RegistrationForm = () => {
             </select>
           </div>
           <div className="mb-3">
-            <label htmlFor="department" className="form-label">
-              Department:
+            <label htmlFor="department" className="form-label d-flex align-items-center" style={{ color: '#495057', fontWeight: '500' }}>
+              <FaUniversity className="me-2" /> Department:
             </label>
             <select
               name="department"
@@ -139,6 +146,7 @@ const RegistrationForm = () => {
               value={formData.department}
               onChange={handleChange}
               required
+              style={{ borderRadius: '8px', padding: '10px' }}
             >
               <option value="" disabled>Select Department</option>
               <option value="Computer Engineering">Computer Engineering</option>
@@ -156,8 +164,8 @@ const RegistrationForm = () => {
             </select>
           </div>
           <div className="mb-3">
-            <label htmlFor="resumeFile" className="form-label">
-              <FaFileUpload /> Resume:
+            <label htmlFor="resumeFile" className="form-label d-flex align-items-center" style={{ color: '#495057', fontWeight: '500' }}>
+              <FaFileUpload className="me-2" /> Resume:
             </label>
             <input
               type="file"
@@ -167,23 +175,36 @@ const RegistrationForm = () => {
               onChange={handleFileChange}
               accept=".pdf, .doc, .docx"
               required
+              style={{ borderRadius: '8px', padding: '10px' }}
             />
           </div>
-          <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+          <button
+            type="submit"
+            className="btn w-100"
+            disabled={loading}
+            style={{
+              backgroundColor: '#007bff',
+              borderColor: '#007bff',
+              color: '#fff',
+              fontWeight: '600',
+              borderRadius: '8px',
+              padding: '12px',
+              fontSize: '1rem',
+            }}
+          >
             {loading ? 'Submitting...' : 'Register'}
           </button>
           <div className="text-center mt-3">
-  <p>
-    Already registered?{' '}
-    <span
-      style={{ color: 'blue', cursor: 'pointer', textDecoration: 'underline' }}
-      onClick={() => navigate('/verify-prn')} // Redirect to PRN verification page
-    >
-      Click here
-    </span>
-  </p>
-</div>
-
+            <p style={{ color: '#6c757d', fontSize: '0.9rem' }}>
+              Already registered?{' '}
+              <span
+                style={{ color: '#007bff', cursor: 'pointer', textDecoration: 'underline', fontWeight: '500' }}
+                onClick={() => navigate('/verify-prn')} // Redirect to PRN verification page
+              >
+                Click here
+              </span>
+            </p>
+          </div>
         </form>
       </div>
     </div>

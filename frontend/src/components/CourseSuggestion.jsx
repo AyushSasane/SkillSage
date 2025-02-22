@@ -31,7 +31,12 @@ function CourseSuggestions() {
 
       if (!querySnapshot.empty) {
         const studentData = querySnapshot.docs[0].data();
-        const userSkills = studentData.skills ? studentData.skills.split(',').map(skill => skill.trim()) : [];
+        const userSkills = Array.isArray(studentData.skills) 
+          ? studentData.skills // If it's already an array, use it directly
+          : typeof studentData.skills === 'string' 
+          ? studentData.skills.split(',').map(skill => skill.trim()) 
+          : [];
+
         setSkills(userSkills);
       } else {
         setError('Profile not found.');
@@ -136,7 +141,7 @@ function CourseSuggestions() {
       {courseResults.length > 0 && (
         <div className="row">
           {courseResults.map((result, index) => (
-            <div key={index} className="col-md-6 mb-3">
+            <div key={index} className="col-md-4 mb-4">
               <div className="card h-100 d-flex align-items-stretch">
                 <div className="card-body">
                   <h5 className="card-title">{result.skill}</h5>

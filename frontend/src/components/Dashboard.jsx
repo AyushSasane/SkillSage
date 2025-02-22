@@ -11,6 +11,14 @@ import JobSearch from './JobSearch';
 import CourseSuggestion from './CourseSuggestion';
 import { Badge } from 'react-bootstrap';
 import LeaderBoard from './LeaderBoard';
+import LineGraph from './LineGraph';
+import CompactLeaderboard from './compactLeaderboard';
+import Interviewer from './Interviewer';
+import ResumeAnalyzer from './ResumeAnalyzer';
+import "../../css/DashboardCards.css"
+
+
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -148,17 +156,13 @@ const Dashboard = () => {
         return <CourseSuggestion />;
       case 'leaderboard':
         return <LeaderBoard />;
+      case 'Interviewer':
+          return <Interviewer />;
+      case 'Resume_Analyzer':
+          return <ResumeAnalyzer />;
       case 'home': // Dashboard specific content
         return (
-          <div>
-            {loading ? (
-              <h2>Loading...</h2>
-            ) : error ? (
-              <p className="text-danger">{error}</p>
-            ) : (
-              <h1 style={{ marginTop: '30px' }}>Welcome, {username || 'User'}!</h1> // Only render the Welcome message here
-            )}
-          </div>
+        <div></div>
         );
       default:
         return null;
@@ -172,132 +176,128 @@ const Dashboard = () => {
     return (
       <div>
         {/* Cards Layout */}
-        <div
+        <div 
           style={{
             display: 'flex',
-            flexWrap: 'wrap',
-            gap: '40px',
+            // flexWrap: 'wrap',
+            gap: '10px',
             justifyContent: 'left',
             marginTop: '50px',
+           
           }}
         >
           {/* Profile Stats Card */}
-          <div className="card" style={{ width: '18rem' }}>
-            <div className="circle-icon" style={{
-              backgroundColor: '#007bff',
-              borderRadius: '50%',
-              width: '50px',
-              height: '50px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: '-25px auto 15px',
-            }}>
-              <i className="bi bi-person-circle" style={{ fontSize: '2rem', color: '#fff' }}></i>
-            </div>
-            <div className="card-body">
-              <h5 className="card-title">Profile Stats</h5>
-              <p className="card-text">PRN: {localStorage.getItem('userPRN')}</p>
-              <p className="card-text">ATS Score: {profileData?.atsScore || 'N/A'}</p>
-              <p className="card-text">Leaderboard Rank: {profileData?.rank || 'N/A'}</p> {/* Display rank here */}
+          <div className="card" style={{ width: '18rem' , borderRadius:'3px', paddingTop:'30px',paddingBottom:'30px',paddingLeft:'15px'}}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <div className="circle-icon" style={{
+                backgroundColor: '#007bff',
+                borderRadius: '50%',
+                width: '50px',
+                height: '50px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <i className="bi bi-person-circle" style={{fontSize: '1.8rem', color: '#fff' }}></i>
+              </div>
+              <div>
+                <h5 className="card-title" style={{fontFamily: "'Lexend', sans-serif"}} >Profile Stats</h5>
+                <p className="card-text">PRN: {localStorage.getItem('userPRN')}</p>
+              </div>
             </div>
           </div>
 
           {/* Resume Status Card */}
-          <div className="card" style={{ width: '18rem' }}>
-            <div className="circle-icon" style={{
-              backgroundColor: '#28a745',
-              borderRadius: '50%',
-              width: '50px',
-              height: '50px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: '-25px auto 15px',
-            }}>
-              <i className="bi bi-file-earmark-arrow-up" style={{ fontSize: '2rem', color: '#fff' }}></i>
-            </div>
-            <div className="card-body">
-              <h5 className="card-title">Resume Status</h5>
-              <p className="card-text">Resume Uploaded: Yes</p>
-              <p className="card-text">Last Uploaded: 12th November 2024</p>
-              {/* <a href="/upload-resume" className="btn btn-primary">
-                Upload New Resume
-              </a> */}
+          <div className="card" style={{ width: '18rem', borderRadius:'3px', paddingTop:'30px',paddingBottom:'30px',paddingLeft:'15px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <div className="circle-icon" style={{
+                backgroundColor: '#28a745',
+                borderRadius: '50%',
+                width: '50px',
+                height: '50px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <i className="bi bi-file-earmark-arrow-up" style={{ fontSize: '1.8rem', color: '#fff' }}></i>
+              </div>
+              <div>
+                <h5 className="card-title" style={{fontFamily: "'Lexend', sans-serif"}}>Resume Status</h5>
+                <p className="card-text" >Resume Uploaded: Yes</p>
+              </div>
             </div>
           </div>
 
-          {/* Quiz Performance Card */}
-          <div className="card" style={{ width: '18rem' }}>
-            <div className="circle-icon" style={{
-              backgroundColor: '#ffc107',
-              borderRadius: '50%',
-              width: '50px',
-              height: '50px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: '-25px auto 15px',
-            }}>
-              <i className="bi bi-clipboard2-check" style={{ fontSize: '2rem', color: '#fff' }}></i>
-            </div>
-            <div className="card-body">
-              <h5 className="card-title">Quiz Performance</h5>
-              {quizHistory.length > 0 ? (
-                <ul>
-                  {quizHistory.map((quiz, index) => (
-                    <li key={index}>
-                      {quiz.quizName}: {quiz.score}/10 on {formatDate(quiz.attemptDate)}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No quiz attempts yet</p>
-              )}
-              <p className="card-text">Total Quizzes Attempted: {quizHistory.length}</p>
+          {/* Leaderboard Rank Card */}
+          <div className="card" style={{ width: '18rem', paddingTop:'30px',paddingBottom:'30px',paddingLeft:'15px',borderRadius:'3px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <div className="circle-icon" style={{
+                backgroundColor: '#ffc107',
+                borderRadius: '50%',
+                width: '50px',
+                height: '50px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <i className="bi bi-trophy" style={{ fontSize: '1.8rem', color: '#fff' }}></i>
+              </div>
+              <div>
+                <h5 className="card-title" style={{fontFamily: "'Lexend', sans-serif"}}>Leaderboard Rank</h5>
+                <p className="card-text">Rank: {profileData?.rank || 'N/A'}</p>
+              </div>
             </div>
           </div>
 
-          {/* Skill Insights Card */}
-          <div className="card" style={{ width: '18rem' }}>
-            <div className="circle-icon" style={{
-              backgroundColor: '#17a2b8',
-              borderRadius: '50%',
-              width: '50px',
-              height: '50px',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              margin: '-25px auto 15px',
-            }}>
-              <i className="bi bi-gear" style={{ fontSize: '2rem', color: '#fff' }}></i>
-            </div>
-            <div className="card-body">
-              <h5 className="card-title">Skill Insights</h5>
-              {Array.isArray(skillsExtracted) && skillsExtracted.length > 0 ? (
-                <div>
-                  {skillsExtracted.slice(0, 5).map((skill, index) => (
-                    <Badge key={index} pill bg="info" className="me-2 mb-2">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              ) : (
-                <p>No skills extracted yet.</p>
-              )}
+          {/* ATS Score Card */}
+          <div className="card" style={{ width: '18rem', paddingTop:'30px',paddingBottom:'30px',paddingLeft:'15px',borderRadius:'3px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+              <div className="circle-icon" style={{
+                backgroundColor: '#17a2b8',
+                borderRadius: '50%',
+                width: '50px',
+                height: '50px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <i className="bi bi-bar-chart-line" style={{ fontSize: '1.8rem', color: '#fff' }}></i>
+              </div>
+              <div>
+                <h5 className="card-title" style={{fontFamily: "'Lexend', sans-serif"}}>ATS Score</h5>
+                <p className="card-text">Score: 85</p> {/* Hardcoded for now */}
+              </div>
+
             </div>
           </div>
-        </div>
+
+        </div> 
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', marginTop: '20px' }}>
+  
+  {/* Line Graph Section */}
+  <div style={{ background: 'white', border: '1px solid #d2d2d2', width: '50%',height:'400px', borderRadius: '3px', padding: '10px' }}>
+    <LineGraph />
+  </div>
+
+  {/* Compact Leaderboard Section */}
+  <div style={{ background: 'white',backgroundColor:'#f9fafb' , border: '1px solid #f9fafb ', width: '50%',height:'400px', borderRadius: '3px'}}>
+    <CompactLeaderboard />
+  </div>
+
+</div>
+
+ 
       </div>
     );
-  };
+};
+
 
   return (
-    <div>
+    <div style={{ backgroundColor: '#f9fafb', minHeight: '100vh'}}>
       <Navbar onProfileClick={handleProfileClick} toggleLeftPane={toggleLeftPane} />
       <div className="container-fluid">
-        <div className="row">
-          <div className={`col-md-3 ${isCollapsed ? 'd-none' : ''}`}>
+        <div className="row" style={{marginTop:'5rem'}}>
+          <div style={{width:'19%'}} className={`col-md-3  p-0 ${isCollapsed ? 'd-none' : ''}`}>
             <LeftPane
               isCollapsed={isCollapsed}
               toggleCollapse={toggleLeftPane}
@@ -306,6 +306,7 @@ const Dashboard = () => {
           </div>
           <div className="col-md-9" style={{
             marginLeft: '-35px',
+            marginTop:'-23px'
           }}>
             {renderContent()}
             {renderDashboardCards()}
@@ -317,3 +318,8 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+
+
+
+

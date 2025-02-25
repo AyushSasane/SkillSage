@@ -70,36 +70,30 @@ function JobSearch() {
       setError('Location is required to search jobs.');
       return;
     }
-
+  
     setError('');
     setLoading(true);
-    setJobResults([]);
-
+    setJobResults([]); // Clear previous results
+  
     const skillChunks = chunkSkills(skills);
-    let allJobResults = [];
-
+  
     try {
       for (const chunk of skillChunks) {
-        try {
-          const response = await axios.post('http://localhost:5000/api/jobsearch/search', {
-            skills: chunk.join(', '), // Join the chunk into a comma-separated string
-            location: location,
-          });
-
+        axios.post('http://localhost:5000/api/jobsearch/search', {
+          skills: chunk.join(', '), // Join the chunk into a comma-separated string
+          location: location,
+        })
+        .then((response) => {
           if (response.data.results && response.data.results.length > 0) {
-            allJobResults = [...allJobResults, ...response.data.results];
-          } else {
-            console.warn(`No results for chunk: ${chunk.join(', ')}`);
+            setJobResults(prevResults => [
+              ...new Map([...prevResults, ...response.data.results].map(job => [job.redirect_url, job])).values()
+            ]);
           }
-        } catch (chunkError) {
+        })
+        .catch((chunkError) => {
           console.error(`Error fetching jobs for chunk: ${chunk.join(', ')}`, chunkError);
-        }
+        });
       }
-
-      // Remove duplicates by job URL
-      allJobResults = [...new Map(allJobResults.map(job => [job.redirect_url, job])).values()];
-
-      setJobResults(allJobResults);
     } catch (error) {
       console.error('Error fetching jobs:', error);
       setError('Failed to fetch jobs, please try again later.');
@@ -107,6 +101,7 @@ function JobSearch() {
       setLoading(false);
     }
   };
+  
 
   // Fetch skills when the component mounts
   useEffect(() => {

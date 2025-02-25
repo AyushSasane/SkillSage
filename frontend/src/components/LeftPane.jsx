@@ -4,6 +4,7 @@ import { FaTrophy, FaQuestionCircle, FaBriefcase, FaGraduationCap, FaUserTie } f
 import { ListGroup } from 'react-bootstrap';
 import { MdDashboard } from 'react-icons/md';
 import '../../css/LeftPane.css'; // Import external CSS
+import {AiOutlineFileSearch} from 'react-icons/ai';
 
 const LeftPane = ({ onMenuClick }) => {
   const [activeItem, setActiveItem] = useState('home'); // State to track active menu item
@@ -68,7 +69,7 @@ const LeftPane = ({ onMenuClick }) => {
           onClick={() => handleMenuClick('Resume_Analyzer')}
           className={`sidebar-item ${activeItem === 'Resume_Analyzer' ? 'active' : ''}`}
         >
-          <FaUserTie className="sidebar-icon" /> Resume Analyzer
+          <AiOutlineFileSearch className="sidebar-icon" /> Resume Analyzer
         </ListGroup.Item>
       </ListGroup>
     </div>

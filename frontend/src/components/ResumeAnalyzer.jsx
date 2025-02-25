@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "../../css/ResumeAnalyzer.css"; // Import the CSS file
+import ReactMarkdown from "react-markdown";
 
 const ResumeAnalyzer = () => {
   const [resume, setResume] = useState(null);
@@ -39,6 +40,23 @@ const ResumeAnalyzer = () => {
     setLoading(false);
   };
 
+  // Function to clean content using regex
+  const cleanContent = (text) => {
+    // Remove unwanted characters like *, #, etc.
+    return text.replace(/[*#]/g, "").trim();
+  };
+
+  // Function to split the result into sections
+  const splitResultIntoSection = (result) => {
+    const sections = result.split(/\d+\.\s+/).filter(section => section.trim() !== "");
+    return sections.map((section, index) => ({
+      title: `${index + 1}. ${cleanContent(section.split("\n")[0])}`, // Clean the title
+      content: cleanContent(section.split("\n").slice(1).join("\n")), // Clean the content
+    }));
+  };
+
+  const sections = result ? splitResultIntoSection(result) : [];
+
   return (
     <div className="resume-analyzer-container">
       <div className="resume-analyzer-card">
@@ -48,12 +66,18 @@ const ResumeAnalyzer = () => {
           {/* File Upload */}
           <div className="form-group">
             <label className="form-label">Upload Resume (PDF):</label>
-            <input
-              type="file"
-              accept=".pdf"
-              onChange={handleFileChange}
-              className="form-input"
-            />
+            <div className="custom-file-upload">
+              <input
+                type="file"
+                id="file-upload"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="form-input"
+              />
+              <label htmlFor="file-upload" className="custom-file-button">
+                {resume ? resume.name : "Choose File"}
+              </label>
+            </div>
           </div>
 
           {/* Job Description Input */}
@@ -95,7 +119,26 @@ const ResumeAnalyzer = () => {
         {result && (
           <div className="result-container">
             <h2 className="result-title">Analysis Results:</h2>
-            <p className="result-text">{result}</p>
+            <div className="result-cards">
+              {sections.map((section, index) => (
+                <div key={index} className="result-card">
+                  <h3 className="result-card-title">{section.title}</h3>
+                  <div className="result-card-content">
+                    <ReactMarkdown
+                      components={{
+                        h1: ({ node, ...props }) => <h1 className="text-xl font-bold" {...props} />,
+                        h2: ({ node, ...props }) => <h2 className="text-lg font-semibold" {...props} />,
+                        p: ({ node, ...props }) => <p className="text-gray-700" {...props} />,
+                        ul: ({ node, ...props }) => <ul className="list-disc list-inside" {...props} />,
+                        li: ({ node, ...props }) => <li className="ml-4" {...props} />,
+                      }}
+                    >
+                      {section.content}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -104,5 +147,3 @@ const ResumeAnalyzer = () => {
 };
 
 export default ResumeAnalyzer;
-
-

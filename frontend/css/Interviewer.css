@@ -1,0 +1,169 @@
+/* Base Styles */
+.interviewer-container {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: "lexend", sans-serif;
+  color: #2c3e50;
+}
+
+/* Header */
+.interviewer-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.interviewer-header h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.interviewer-header p {
+  font-size: 1.1rem;
+  color: #95a5a6;
+}
+
+/* Buttons Container */
+.buttons-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Base Button Styles */
+.stage-button,
+.recording-button {
+  background: #6366f1;
+  color: white;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Hover Effect */
+.stage-button:hover,
+.recording-button:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Active Effect (When Clicked) */
+.stage-button:active,
+.recording-button:active {
+  background: #4338ca;
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Disabled State */
+.stage-button:disabled,
+.recording-button:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Recording Button Specific Styles */
+.recording-button {
+  background: #ff4d4d;
+  width: 100%;
+}
+
+.recording-button:hover {
+  background: #e60000;
+}
+
+.recording-button:active {
+  background: #cc0000;
+}
+
+/* Audio Section */
+.audio-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-top: 2rem;
+}
+
+.audio-section h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+audio {
+  width: 100%;
+  margin-top: 1rem;
+  border-radius: 8px;
+}
+
+/* Transcribed Text */
+.transcribed-text {
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  color: #2c3e50;
+  line-height: 1.6;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+/* Loading Spinner for Buttons */
+.button-loading {
+  display: inline-block;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading Spinner Container */
+.loading-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .interviewer-header h1 {
+    font-size: 2rem;
+  }
+
+  .buttons-container {
+    grid-template-columns: 1fr;
+  }
+
+  .stage-button,
+  .recording-button {
+    font-size: 0.9rem;
+    padding: 0.8rem;
+  }
+}

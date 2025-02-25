@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import openai
@@ -8,6 +8,7 @@ import json
 import requests
 import firebase_admin
 from firebase_admin import credentials, firestore
+import base64  # Add this line
 
 # Load environment variables
 load_dotenv()
@@ -57,10 +58,17 @@ async def post_audio(file: UploadFile):
     # Convert chat response to speech
     audio_output = text_to_speech(chat_response)
 
-    def iterfile():
-        yield audio_output
+    if not audio_output:
+        return JSONResponse({"error": "Failed to generate audio"}, status_code=500)
 
-    return StreamingResponse(iterfile(), media_type="audio/mpeg")
+    # Encode audio to base64 for JSON response
+    audio_base64 = base64.b64encode(audio_output).decode("utf-8")
+
+    # Return both audio and text in the response
+    return JSONResponse({
+        "audio": audio_base64,  # Base64-encoded audio
+        "text": chat_response
+    })
 
 @app.post("/set_stage/{stage}")
 async def set_stage(stage: str):
@@ -190,9 +198,9 @@ def get_stage_prompt(stage, student_data):
         )
     elif stage == "technical":
         return (
-            f"You are now in the technical stage of the interview. "
-            f"Ask questions about {name}'s skills: {skills}, and projects: {projects}. "
-            "Keep responses under 30 words."
+            f"You are now in the technical stage of the interview. Take the interview "
+            f"Ask questions about {name}'s skills: {skills}. "
+            "Keep responses under 30 words. Take the interview when the user says hello."
         )
     else:
         return "You are interviewing the user for a front-end React developer position. Ask short questions. Keep responses under 30 words."
